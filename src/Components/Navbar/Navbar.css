@@ -7,7 +7,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: fixed;
+  height: 80px;
+  position: sticky;
   top: 0;
   left: 0;
   right: 0;
@@ -27,4 +28,11 @@
   width: 100%;
   padding: 5px 10px;
   margin: 10px;
+}
+
+@media only screen and (max-width: 600px) {
+  .app-heading {
+    font-size: 14px;
+    padding: 0 20px;
+  }
 }

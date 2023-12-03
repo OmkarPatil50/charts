@@ -1,24 +1,34 @@
 import { useContext, useEffect, useState } from 'react';
 import './App.css';
-import IntensityChart from './Components/Charts/IntensityChart';
-import RelevanceChart from './Components/Charts/RelevanceChart';
-import YearChart from './Components/Charts/YearChart';
-import CountryChart from './Components/Charts/CountryChart';
-import TopicsChart from './Components/Charts/TopicsChart';
-import RegionChart from './Components/Charts/RegionChart';
-import LikelihoodChart from './Components/Charts/LikelihoodChart';
+import LineChart from './Components/Charts/LineChart';
 import Filterbar from './Components/Filters/Filterbar';
 import { AppContext } from '.';
 import { Navbar } from './Components/Navbar/Navbar';
+import { CategoryScale, Chart, LinearScale, PointElement, LineElement, BarElement } from "chart.js";
+import BarChart from './Components/Charts/BarChart';
+
+Chart.register(CategoryScale);
+Chart.register(LinearScale);
+Chart.register(PointElement);
+Chart.register(LineElement);
+Chart.register(BarElement);
+
+
+
 
 function App() {
-  const { state, dispatch } = useContext(AppContext)
+  const { state, dispatch, generateShareableURL } = useContext(AppContext)
+
+  console.log(generateShareableURL)
+
+  const [selectedCategory, setSelectedCategory] = useState('A')
 
   const getData = async () => {
     try {
-      const response = await fetch('https://assignment-blackcoffeer.omkarpatil20.repl.co/data')
+      const response = await fetch('https://moonshot.omkarpatil20.repl.co/data')
       const jsonResponse = await response.json()
-      dispatch({ type: 'FETCH_DATA_SUCCESS', payload: jsonResponse.data })
+      console.log(jsonResponse)
+      dispatch({ type: 'FETCH_DATA_SUCCESS', payload: jsonResponse })
     } catch (error) {
       console.error(error)
     }
@@ -28,19 +38,21 @@ function App() {
     getData()
   }, [])
 
+
+  const handleShareButtonClick = () => {
+    generateShareableURL();
+  };
+
+
   return (
     <div className="App">
       <Navbar />
       <div className="main-page">
         <Filterbar />
+        <button onClick={handleShareButtonClick}>Share Chart</button>
         <section className="charts-section">
-          <IntensityChart data={state.filteredData} />
-          <LikelihoodChart data={state.filteredData} />
-          <RelevanceChart data={state.filteredData} />
-          <YearChart data={state.filteredData} />
-          <CountryChart data={state.filteredData} />
-          <TopicsChart data={state.filteredData} />
-          <RegionChart data={state.filteredData} />
+          <BarChart data={state.filteredData} setSelectedCategory={setSelectedCategory} />
+          <LineChart data={state.filteredData} selectedCategory={selectedCategory} />
         </section>
       </div>
     </div>

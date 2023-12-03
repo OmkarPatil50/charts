@@ -1,5 +1,7 @@
 import React, { useEffect, useReducer } from "react";
 import { AppContext } from "..";
+import { parse, serialize } from "cookie";
+import { useLocation } from "react-router-dom";
 
 const AppContextProvider = ({ children }) => {
   const initialValue = {
@@ -7,17 +9,12 @@ const AppContextProvider = ({ children }) => {
     filteredData: [],
     status: "idle",
     filterBy: {
-      intensity: "all",
-      likelihood: "all",
-      relevance: "all",
-      year: "all",
-      country: "all",
-      topic: "all",
-      region: "all",
-      city: "all",
-      sector: "all",
-      pestle: "all",
-      source: "all",
+      gender: "all",
+      age: "all",
+      date: {
+        from: "all",
+        to: "all",
+      },
     },
   };
 
@@ -45,93 +42,52 @@ const AppContextProvider = ({ children }) => {
       }
 
       case "SET_FILTER_ACTIVE": {
-        if (action.payload.filterBy === "intensity") {
+        if (action.payload.filterBy === "gender") {
           return {
             ...state,
             filterBy: {
               ...state.filterBy,
-              intensity: action.payload.filterValue,
+              gender: action.payload.filterValue,
             },
           };
         }
-        if (action.payload.filterBy === "likelihood") {
+
+        if (action.payload.filterBy === "age") {
           return {
             ...state,
             filterBy: {
               ...state.filterBy,
-              likelihood: action.payload.filterValue,
+              age: action.payload.filterValue,
             },
           };
         }
-        if (action.payload.filterBy === "relevance") {
+
+        if (action.payload.filterBy === "date-from") {
           return {
             ...state,
             filterBy: {
               ...state.filterBy,
-              relevance: action.payload.filterValue,
+              date: {
+                ...state.filterBy.date,
+                from: action.payload.filterValue,
+              },
             },
           };
         }
-        if (action.payload.filterBy === "year") {
-          return {
-            ...state,
-            filterBy: { ...state.filterBy, year: action.payload.filterValue },
-          };
-        }
-        if (action.payload.filterBy === "country") {
-          return {
-            ...state,
-            filterBy: {
-              ...state.filterBy,
-              country: action.payload.filterValue,
-            },
-          };
-        }
-        if (action.payload.filterBy === "topic") {
+
+        if (action.payload.filterBy === "date-to") {
           return {
             ...state,
             filterBy: {
               ...state.filterBy,
-              topic: action.payload.filterValue,
+              date: {
+                ...state.filterBy.date,
+                to: action.payload.filterValue,
+              },
             },
           };
         }
-        if (action.payload.filterBy === "region") {
-          return {
-            ...state,
-            filterBy: {
-              ...state.filterBy,
-              region: action.payload.filterValue,
-            },
-          };
-        }
-        if (action.payload.filterBy === "sector") {
-          return {
-            ...state,
-            filterBy: {
-              ...state.filterBy,
-              sector: action.payload.filterValue,
-            },
-          };
-        }
-        if (action.payload.filterBy === "pestle") {
-          return {
-            ...state,
-            filterBy: {
-              ...state.filterBy,
-              pestle: action.payload.filterValue,
-            },
-          };
-        }
-        if (action.payload.filterBy === "source") {
-          return {
-            ...state,
-            filterBy: {
-              ...state.filterBy,
-              source: action.payload.filterValue,
-            },
-          };
-        }
+
         break;
       }
 
@@ -139,17 +95,12 @@ const AppContextProvider = ({ children }) => {
         return {
           ...state,
           filterBy: {
-            intensity: "all",
-            likelihood: "all",
-            relevance: "all",
-            year: "all",
-            country: "all",
-            topic: "all",
-            region: "all",
-            city: "all",
-            sector: "all",
-            pestle: "all",
-            source: "all",
+            gender: "all",
+            age: "all",
+            date: {
+              from: "all",
+              to: "all",
+            },
           },
         };
       }
@@ -160,90 +111,115 @@ const AppContextProvider = ({ children }) => {
   };
 
   const [state, dispatch] = useReducer(reducerFunction, initialValue);
+  const location = useLocation();
+
+  useEffect(() => {
+    const setFiltersFromURL = () => {
+      const urlSearchParams = new URLSearchParams(location.search);
+      const filterParams = urlSearchParams.get("filters");
+
+      if (filterParams) {
+        dispatch({
+          type: "SET_FILTER_ACTIVE",
+          payload: JSON.parse(filterParams),
+        });
+      }
+    };
+
+    setFiltersFromURL();
+  }, [location.search, dispatch]);
+
+  const generateShareableURL = () => {
+    const filterParams = JSON.stringify(state.filterBy);
+    const newURL = `${window.location.pathname}?filters=${filterParams}`;
+
+    navigator.clipboard.writeText(newURL).then(() => {
+      console.log('URL copied to clipboard:', newURL);
+    }).catch((err) => {
+      console.error('Failed to copy URL to clipboard:', err);
+    });
+
+    
+  };
+
+  useEffect(() => {
+    const setPreferencesInCookies = () => {
+      const cookieState = JSON.stringify(state.filterBy);
+
+      document.cookie = `filterBy=${cookieState}`;
+
+      const storedFilterBy = document.cookie.filterBy;
+      if (storedFilterBy) {
+        dispatch({
+          type: "SET_FILTER_ACTIVE",
+          payload: JSON.parse(storedFilterBy),
+        });
+      }
+    };
+
+    setPreferencesInCookies();
+  }, [
+    state.filterBy.gender,
+    state.filterBy.age,
+    state.filterBy.date.from,
+    state.filterBy.date.to,
+  ]);
+
+  function convertExcelSerialNumberToJSDate(serialNumber) {
+    const millisecondsPerDay = 24 * 60 * 60 * 1000;
+    const excelStartDate = new Date("1900-01-01T00:00:00Z");
+    const offsetDays = serialNumber - 1;
+
+    const targetDate = new Date(
+      excelStartDate.getTime() + offsetDays * millisecondsPerDay
+    );
+
+    return targetDate;
+  }
 
   useEffect(() => {
     let result = [...state.data];
-    if (state.filterBy.intensity !== "all") {
-      result = result.filter(
-        ({ intensity }) =>
-          parseFloat(intensity) >= parseFloat(state.filterBy.intensity)
-      );
-    }
-    if (state.filterBy.likelihood !== "all") {
-      result = result.filter(
-        ({ likelihood }) =>
-          parseFloat(likelihood) >= parseFloat(state.filterBy.likelihood)
-      );
-    }
-    if (state.filterBy.relevance !== "all") {
-      result = result.filter(
-        ({ relevance }) =>
-          parseFloat(relevance) >= parseFloat(state.filterBy.relevance)
-      );
-    }
-    if (state.filterBy.year !== "all") {
-      result = result.filter(
-        ({ end_year }) =>
-          parseFloat(end_year) === parseFloat(state.filterBy.year)
-      );
-    }
-    if (state.filterBy.country !== "all") {
-      result = result.filter(
-        ({ country }) =>
-          country.toLowerCase() === state.filterBy.country.toLowerCase()
-      );
+    if (state.filterBy.gender !== "all") {
+      result = result.filter(({ Gender }) => {
+        return Gender === state.filterBy.gender;
+      });
     }
 
-    if (state.filterBy.topic !== "all") {
-      result = result.filter(
-        ({ topic }) =>
-          topic.toLowerCase() === state.filterBy.topic.toLowerCase()
-      );
+    if (state.filterBy.age !== "all") {
+      result = result.filter(({ Age }) => {
+        return Age === state.filterBy.age;
+      });
     }
 
-    if (state.filterBy.region !== "all") {
-      result = result.filter(
-        ({ region }) =>
-          region.toLowerCase() === state.filterBy.region.toLowerCase()
-      );
+    if (state.filterBy.date.from !== "all") {
+      const refDate = new Date(state.filterBy.date.from);
+
+      result = result.filter(({ Day }) => {
+        const currentDate = convertExcelSerialNumberToJSDate(Day);
+        console.log(refDate, currentDate);
+        return currentDate > refDate;
+      });
     }
 
-    if (state.filterBy.sector !== "all") {
-      result = result.filter(
-        ({ sector }) =>
-          sector.toLowerCase() === state.filterBy.sector.toLowerCase()
-      );
+    if (state.filterBy.date.to !== "all") {
+      const refDate = new Date(state.filterBy.date.to);
+
+      result = result.filter(({ Day }) => {
+        const currentDate = convertExcelSerialNumberToJSDate(Day);
+        return currentDate < refDate;
+      });
     }
 
-    if (state.filterBy.pestle !== "all") {
-      result = result.filter(
-        ({ pestle }) =>
-          pestle.toLowerCase() === state.filterBy.pestle.toLowerCase()
-      );
-    }
-
-    if (state.filterBy.source !== "all") {
-      result = result.filter(
-        ({ source }) =>
-          source.toLowerCase() === state.filterBy.source.toLowerCase()
-      );
-    }
     dispatch({ type: "SET_FILTERED_DATA", payload: result });
   }, [
-    state.filterBy.intensity,
-    state.filterBy.likelihood,
-    state.filterBy.relevance,
-    state.filterBy.year,
-    state.filterBy.country,
-    state.filterBy.topic,
-    state.filterBy.region,
-    state.filterBy.sector,
-    state.filterBy.pestle,
-    state.filterBy.source,
+    state.filterBy.gender,
+    state.filterBy.age,
+    state.filterBy.date.from,
+    state.filterBy.date.to,
   ]);
 
   return (
-    <AppContext.Provider value={{ state, dispatch }}>
+    <AppContext.Provider value={{ state, dispatch, generateShareableURL }}>
       {children}
     </AppContext.Provider>
   );
