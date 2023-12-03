@@ -19,7 +19,6 @@ Chart.register(BarElement);
 function App() {
   const { state, dispatch, generateShareableURL } = useContext(AppContext)
 
-  console.log(generateShareableURL)
 
   const [selectedCategory, setSelectedCategory] = useState('A')
 
@@ -27,7 +26,6 @@ function App() {
     try {
       const response = await fetch('https://moonshot.omkarpatil20.repl.co/data')
       const jsonResponse = await response.json()
-      console.log(jsonResponse)
       dispatch({ type: 'FETCH_DATA_SUCCESS', payload: jsonResponse })
     } catch (error) {
       console.error(error)
@@ -43,6 +41,7 @@ function App() {
     generateShareableURL();
   };
 
+console.log(state.filterBy)
 
   return (
     <div className="App">

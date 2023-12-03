@@ -12,8 +12,8 @@ const AppContextProvider = ({ children }) => {
       gender: "all",
       age: "all",
       date: {
-        from: "all",
-        to: "all",
+        from: "0000-00-00",
+        to: "0000-00-00",
       },
     },
   };
@@ -91,6 +91,10 @@ const AppContextProvider = ({ children }) => {
         break;
       }
 
+      case "SET_ALL_FILTERS": {
+        return { ...state, filterBy: action.payload };
+      }
+
       case "CLEAR_FILTERS": {
         return {
           ...state,
@@ -113,57 +117,63 @@ const AppContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducerFunction, initialValue);
   const location = useLocation();
 
-  useEffect(() => {
-    const setFiltersFromURL = () => {
-      const urlSearchParams = new URLSearchParams(location.search);
-      const filterParams = urlSearchParams.get("filters");
-
-      if (filterParams) {
-        dispatch({
-          type: "SET_FILTER_ACTIVE",
-          payload: JSON.parse(filterParams),
-        });
-      }
-    };
-
-    setFiltersFromURL();
-  }, [location.search, dispatch]);
-
   const generateShareableURL = () => {
     const filterParams = JSON.stringify(state.filterBy);
-    const newURL = `${window.location.pathname}?filters=${filterParams}`;
+    // const newURL = `https://chartmoonshot.vercel.app/?filters=${filterParams}`;
+    const newURL = `https://localhost:3000?filters=${filterParams}`;
 
-    navigator.clipboard.writeText(newURL).then(() => {
-      console.log('URL copied to clipboard:', newURL);
-    }).catch((err) => {
-      console.error('Failed to copy URL to clipboard:', err);
-    });
-
-    
+    navigator.clipboard
+      .writeText(newURL)
+      .then(() => {
+        console.log("URL copied to clipboard:", newURL);
+      })
+      .catch((err) => {
+        console.error("Failed to copy URL to clipboard:", err);
+      });
   };
 
   useEffect(() => {
     const setPreferencesInCookies = () => {
       const cookieState = JSON.stringify(state.filterBy);
 
-      document.cookie = `filterBy=${cookieState}`;
+      document.cookie = cookieState;
 
-      const storedFilterBy = document.cookie.filterBy;
+      const storedFilterBy = document.cookie;
+
+      console.log(storedFilterBy, "cookies");
+      const filters = JSON.parse(storedFilterBy);
+
       if (storedFilterBy) {
         dispatch({
-          type: "SET_FILTER_ACTIVE",
-          payload: JSON.parse(storedFilterBy),
+          type: "SET_ALL_FILTERS",
+          payload: filters,
         });
       }
     };
 
     setPreferencesInCookies();
   }, [
-    state.filterBy.gender,
-    state.filterBy.age,
-    state.filterBy.date.from,
-    state.filterBy.date.to,
+    state?.filterBy?.gender,
+    state?.filterBy?.age,
+    state?.filterBy?.date.from,
+    state?.filterBy?.date.to,
   ]);
+
+  useEffect(() => {
+    const setFiltersFromURL = () => {
+      const urlSearchParams = new URLSearchParams(location.search);
+      const filterParams = urlSearchParams.get("filters");
+      const filters = JSON.parse(filterParams);
+      if (filterParams) {
+        dispatch({
+          type: "SET_ALL_FILTERS",
+          payload: filters,
+        });
+      }
+    };
+
+    setFiltersFromURL();
+  }, [location.search, dispatch]);
 
   function convertExcelSerialNumberToJSDate(serialNumber) {
     const millisecondsPerDay = 24 * 60 * 60 * 1000;
@@ -178,33 +188,33 @@ const AppContextProvider = ({ children }) => {
   }
 
   useEffect(() => {
-    let result = [...state.data];
-    if (state.filterBy.gender !== "all") {
-      result = result.filter(({ Gender }) => {
+    let result = state.data ? [...state.data] : null;
+    if (state?.filterBy?.gender !== "all") {
+      result = result?.filter(({ Gender }) => {
         return Gender === state.filterBy.gender;
       });
     }
 
-    if (state.filterBy.age !== "all") {
-      result = result.filter(({ Age }) => {
+    if (state?.filterBy?.age !== "all") {
+      result = result?.filter(({ Age }) => {
         return Age === state.filterBy.age;
       });
     }
 
-    if (state.filterBy.date.from !== "all") {
-      const refDate = new Date(state.filterBy.date.from);
+    if (state?.filterBy?.date?.from !== "all") {
+      const refDate = new Date(state?.filterBy?.date?.from);
 
-      result = result.filter(({ Day }) => {
+      result = result?.filter(({ Day }) => {
         const currentDate = convertExcelSerialNumberToJSDate(Day);
         console.log(refDate, currentDate);
         return currentDate > refDate;
       });
     }
 
-    if (state.filterBy.date.to !== "all") {
-      const refDate = new Date(state.filterBy.date.to);
+    if (state?.filterBy?.date?.to !== "all") {
+      const refDate = new Date(state?.filterBy?.date?.to);
 
-      result = result.filter(({ Day }) => {
+      result = result?.filter(({ Day }) => {
         const currentDate = convertExcelSerialNumberToJSDate(Day);
         return currentDate < refDate;
       });
@@ -212,10 +222,10 @@ const AppContextProvider = ({ children }) => {
 
     dispatch({ type: "SET_FILTERED_DATA", payload: result });
   }, [
-    state.filterBy.gender,
-    state.filterBy.age,
-    state.filterBy.date.from,
-    state.filterBy.date.to,
+    state?.filterBy?.gender,
+    state?.filterBy?.age,
+    state?.filterBy?.date?.from,
+    state?.filterBy?.date?.to,
   ]);
 
   return (

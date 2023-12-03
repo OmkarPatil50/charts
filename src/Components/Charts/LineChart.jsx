@@ -3,7 +3,7 @@ import { Line } from "react-chartjs-2";
 import "./charts.css";
 
 const LineChart = ({ data, selectedCategory }) => {
-  const dates = data.reduce((acc, curr) => {
+  const dates = data?.reduce((acc, curr) => {
     return acc.some((item) => item.Day === curr.Day)
       ? acc.reduce((all, current) => {
           return current.Day === curr.Day
@@ -39,10 +39,10 @@ const LineChart = ({ data, selectedCategory }) => {
     return ` ${formattedDate}`;
   }
 
-  const dateLabels = dates.map(({ Day }) =>
+  const dateLabels = dates?.map(({ Day }) =>
     convertExcelSerialNumberToJSDate(Day)
   );
-  const intensities = dates.map(({ value }) => value);
+  const intensities = dates?.map(({ value }) => value);
 
   const color = "#07d803";
 

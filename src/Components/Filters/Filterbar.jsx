@@ -12,7 +12,7 @@ const Filterbar = () => {
         <select
           name="age"
           id="age"
-          value={state.filterBy.age}
+          value={state?.filterBy?.age}
           onChange={(event) => {
             dispatch({
               type: "SET_FILTER_ACTIVE",
@@ -36,7 +36,7 @@ const Filterbar = () => {
         <select
           name="gender"
           id="gender"
-          value={state.filterBy.gender}
+          value={state?.filterBy?.gender}
           onChange={(event) => {
             dispatch({
               type: "SET_FILTER_ACTIVE",
@@ -61,6 +61,7 @@ const Filterbar = () => {
           <input
             type="date"
             id="from"
+            value={state.filterBy.date.from}
             onChange={(event) => {
               dispatch({
                 type: "SET_FILTER_ACTIVE",
@@ -76,6 +77,7 @@ const Filterbar = () => {
           <input
             type="date"
             id="to"
+            value={state.filterBy.date.to}
             onChange={(event) => {
               dispatch({
                 type: "SET_FILTER_ACTIVE",
