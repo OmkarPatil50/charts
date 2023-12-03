@@ -1,0 +1,144 @@
+.login-page {
+  margin-top: 0px;
+  height: 80vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: fit-content;
+  height: fit-content;
+  box-sizing: border-box;
+  box-shadow: 2px 4px 20px rgba(0, 0, 0, 0.4);
+  font-family: "Rubik", sans-serif;
+  border-radius: 10px;
+  background-color: #f8f8f8;
+}
+
+.login-container-heading {
+  font-size: 22px;
+  margin: 20px 0 10px 0;
+  text-align: center;
+}
+
+.login-container label {
+  font-size: 14px;
+  justify-self: left;
+  margin: 10px 50px 10px;
+}
+
+.login-container input {
+  width: 250px;
+  margin: 0px 50px 10px;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid lightgray;
+}
+
+.create-account-btn {
+  align-self: center;
+  margin: 20px;
+  text-decoration: none;
+  color: black;
+  font-size: 14px;
+}
+
+.btn-log-in {
+  width: 250px;
+  align-self: center;
+  background-color: var(--primary-color);
+  margin: 10px 0px;
+  font-size: 16px;
+  color: var(--secondary-color);
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  padding: 7.5px 15px;
+}
+
+.btn-log-in:hover {
+  opacity: 0.7;
+}
+
+/* -----------------mobileView----------------------------- */
+@media screen and (max-width: 768px) {
+  .login-container {
+    margin: 20px 10px 0 0;
+  }
+
+  .login-container-heading {
+    font-size: 18px;
+    margin: 15px 0 5px 0;
+  }
+
+  .btn-log-out {
+    font-size: 14px;
+    margin: 10px 15px;
+  }
+
+  .account-container {
+    width: 300px;
+    height: 325px;
+  }
+
+  .account-header-nav {
+    font-size: 14px;
+    padding: 5px 8px;
+  }
+  .profile-container {
+    margin: 10px 20px;
+  }
+
+  .login-profile-container-heading {
+    font-size: 14px;
+  }
+
+  .profile-keys p {
+    width: 100%;
+    font-size: 14px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .profile-value p {
+    width: 100%;
+    font-size: 14px;
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .address-user-name {
+    font-size: 14px;
+  }
+
+  .user-address {
+    font-size: 12px;
+  }
+
+  .btn-edit,
+  .btn-remove {
+    padding: 2.5px 5px;
+    border-radius: 5px;
+    margin: 5px 5px 0 0;
+    font-weight: 600;
+    transition-duration: 0.3s;
+  }
+
+  .btn-add-new-address {
+    font-size: 14px;
+  }
+
+  .address-profile-page {
+    margin-top: 35px;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+}

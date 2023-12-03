@@ -1,11 +1,13 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect } from 'react';
 import './App.css';
-import LineChart from './Components/Charts/LineChart';
-import Filterbar from './Components/Filters/Filterbar';
 import { AppContext } from '.';
 import { Navbar } from './Components/Navbar/Navbar';
 import { CategoryScale, Chart, LinearScale, PointElement, LineElement, BarElement } from "chart.js";
-import BarChart from './Components/Charts/BarChart';
+import { Route, Routes } from 'react-router-dom';
+import Landing from './Pages/Landing';
+import { Login } from './Pages/Auth/Login';
+import Signup from './Pages/Auth/Signup';
+import RequireAuth from './Pages/Auth/RequireAuth';
 
 Chart.register(CategoryScale);
 Chart.register(LinearScale);
@@ -14,13 +16,8 @@ Chart.register(LineElement);
 Chart.register(BarElement);
 
 
-
-
 function App() {
-  const { state, dispatch, generateShareableURL } = useContext(AppContext)
-
-
-  const [selectedCategory, setSelectedCategory] = useState('A')
+  const { dispatch, } = useContext(AppContext)
 
   const getData = async () => {
     try {
@@ -35,25 +32,17 @@ function App() {
   useEffect(() => {
     getData()
   }, [])
-
-
-  const handleShareButtonClick = () => {
-    generateShareableURL();
-  };
-
-console.log(state.filterBy)
-
   return (
     <div className="App">
       <Navbar />
-      <div className="main-page">
-        <Filterbar />
-        <button onClick={handleShareButtonClick}>Share Chart</button>
-        <section className="charts-section">
-          <BarChart data={state.filteredData} setSelectedCategory={setSelectedCategory} />
-          <LineChart data={state.filteredData} selectedCategory={selectedCategory} />
-        </section>
-      </div>
+      <Routes>
+        <Route path='/' element={
+          <RequireAuth><Landing /></RequireAuth>
+        } />
+        <Route path='/login' element={<Login />} />
+        <Route path='/signup' element={<Signup />} />
+
+      </Routes>
     </div>
   );
 }

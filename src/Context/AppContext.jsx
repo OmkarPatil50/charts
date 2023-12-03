@@ -1,13 +1,13 @@
 import React, { useEffect, useReducer } from "react";
 import { AppContext } from "..";
-import { parse, serialize } from "cookie";
 import { useLocation } from "react-router-dom";
 
 const AppContextProvider = ({ children }) => {
   const initialValue = {
     data: [],
     filteredData: [],
-    status: "idle",
+    status: true,
+    userLoggedIn: false,
     filterBy: {
       gender: "all",
       age: "all",
@@ -20,16 +20,12 @@ const AppContextProvider = ({ children }) => {
 
   const reducerFunction = (state, action) => {
     switch (action.type) {
-      case "FETCH_DATA_LOADING": {
-        return { ...state, status: "loading" };
-      }
-
       case "FETCH_DATA_SUCCESS": {
         return {
           ...state,
           filteredData: action.payload,
           data: action.payload,
-          status: "idle",
+          status: false,
         };
       }
 
@@ -37,7 +33,7 @@ const AppContextProvider = ({ children }) => {
         return {
           ...state,
           filteredData: action.payload,
-          status: "idle",
+          status: false,
         };
       }
 
@@ -102,11 +98,19 @@ const AppContextProvider = ({ children }) => {
             gender: "all",
             age: "all",
             date: {
-              from: "all",
-              to: "all",
+              from: "0000-00-00",
+              to: "0000-00-00",
             },
           },
         };
+      }
+
+      case "UPDATE_USER_LOGIN": {
+        return { ...state, userLoggedIn: action.payload };
+      }
+
+      case "UPDATE_LOADER": {
+        return { ...state, status: action.payload };
       }
 
       default:
@@ -140,7 +144,6 @@ const AppContextProvider = ({ children }) => {
 
       const storedFilterBy = document.cookie;
 
-      console.log(storedFilterBy, "cookies");
       const filters = JSON.parse(storedFilterBy);
 
       if (storedFilterBy) {
@@ -201,17 +204,16 @@ const AppContextProvider = ({ children }) => {
       });
     }
 
-    if (state?.filterBy?.date?.from !== "all") {
+    if (state?.filterBy?.date?.from !== "0000-00-00") {
       const refDate = new Date(state?.filterBy?.date?.from);
 
       result = result?.filter(({ Day }) => {
         const currentDate = convertExcelSerialNumberToJSDate(Day);
-        console.log(refDate, currentDate);
         return currentDate > refDate;
       });
     }
 
-    if (state?.filterBy?.date?.to !== "all") {
+    if (state?.filterBy?.date?.to !== "0000-00-00") {
       const refDate = new Date(state?.filterBy?.date?.to);
 
       result = result?.filter(({ Day }) => {
