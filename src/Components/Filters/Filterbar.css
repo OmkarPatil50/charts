@@ -1,0 +1,50 @@
+.filterbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  max-width: 100vw;
+  margin: 0 auto;
+}
+
+.filter-bar-fieldset {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.filter-bar-fieldset legend {
+  font-weight: bold;
+}
+
+select {
+  width: 100%;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="number"] {
+  width: 100%;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+  cursor: pointer;
+}
+
+.btn-clear {
+  background-color: var(--primary-color);
+  color: #fff;
+  padding: 7.5px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-clear:hover {
+  background-color: #059401;
+}
