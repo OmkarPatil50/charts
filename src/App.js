@@ -8,6 +8,8 @@ import Landing from './Pages/Landing';
 import { Login } from './Pages/Auth/Login';
 import Signup from './Pages/Auth/Signup';
 import RequireAuth from './Pages/Auth/RequireAuth';
+import { ToastContainer } from 'react-toastify';
+import { Loading } from './Components/Loading/Loading';
 
 Chart.register(CategoryScale);
 Chart.register(LinearScale);
@@ -17,7 +19,7 @@ Chart.register(BarElement);
 
 
 function App() {
-  const { dispatch, } = useContext(AppContext)
+  const { state, dispatch } = useContext(AppContext)
 
   const getData = async () => {
     try {
@@ -34,6 +36,9 @@ function App() {
   }, [])
   return (
     <div className="App">
+      {
+        state.status ? <Loading /> : ''
+      }
       <Navbar />
       <Routes>
         <Route path='/' element={
@@ -43,6 +48,8 @@ function App() {
         <Route path='/signup' element={<Signup />} />
 
       </Routes>
+
+      <ToastContainer />
     </div>
   );
 }

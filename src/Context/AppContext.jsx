@@ -123,8 +123,7 @@ const AppContextProvider = ({ children }) => {
 
   const generateShareableURL = () => {
     const filterParams = JSON.stringify(state.filterBy);
-    // const newURL = `https://chartmoonshot.vercel.app/?filters=${filterParams}`;
-    const newURL = `https://localhost:3000?filters=${filterParams}`;
+    const newURL = `https://chartmoonshot.vercel.app/?filters=${filterParams}`;
 
     navigator.clipboard
       .writeText(newURL)
